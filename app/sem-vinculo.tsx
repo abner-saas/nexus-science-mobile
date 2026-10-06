@@ -1,14 +1,15 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Button, Card, Screen } from "@/components/ui";
+import { BrandHeader, Button, Card, Screen } from "@/components/ui";
 import { signOutToLogin } from "@/lib/sign-out";
-import { colors, space } from "@/theme";
+import { colors, font, space } from "@/theme";
 
 export default function SemVinculoRoute() {
   return (
-    <Screen>
+    <Screen tone="navy">
+      <BrandHeader title="Aluno" />
       <View style={styles.body}>
-        <Card>
-          <Text style={styles.title}>Conta sem aluno vinculado</Text>
+        <Card style={styles.panel}>
+          <Text style={styles.title}>Conta sem ficha</Text>
           <Text style={styles.copy}>
             Seu login é de aluno, mas ainda não está ligado a uma ficha. Fale com a consultoria.
           </Text>
@@ -20,7 +21,8 @@ export default function SemVinculoRoute() {
 }
 
 const styles = StyleSheet.create({
-  body: { flex: 1, justifyContent: "center", padding: space.xl },
-  title: { color: colors.navy, fontSize: 22, fontWeight: "700", marginBottom: space.sm },
-  copy: { color: colors.muted, fontSize: 15, marginBottom: space.lg },
+  body: { flex: 1, backgroundColor: colors.background, padding: space.xl, gap: space.md },
+  panel: { gap: space.md },
+  title: { fontFamily: font.title, fontSize: 26, color: colors.ink },
+  copy: { fontFamily: font.body, fontSize: 16, color: colors.muted, lineHeight: 24 },
 });

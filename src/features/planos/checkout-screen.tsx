@@ -2,12 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
-import { Linking, Platform, StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { PlanPlate } from "@/components/plan-plate";
 import { BrandHeader, Button, Card, ErrorText, Screen } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
-import { formatBrl } from "@/lib/format";
+import { planMaterial } from "@/lib/plan-material";
 import { refreshSession } from "@/lib/session";
-import { colors, space } from "@/theme";
+import { colors, font, space } from "@/theme";
 
 function checkoutMessage(error: unknown): string {
   if (!(error instanceof ApiError)) return "Não foi possível abrir o pagamento.";
@@ -52,29 +53,40 @@ export function CheckoutScreen() {
     }
   }
 
+  const material = plan ? planMaterial(plan.tier, plan.name) : "paper";
+
   return (
-    <Screen>
-      <BrandHeader subtitle="Pagamento" />
-      <View style={styles.body}>
-        <Card>
-          <Text style={styles.title}>{plan?.name ?? "Plano"}</Text>
-          <Text style={styles.price}>{plan ? formatBrl(plan.value) : ""}</Text>
+    <Screen tone="navy">
+      <BrandHeader title="Pagamento" />
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.body}>
+        {plan ? (
+          <PlanPlate plan={plan} />
+        ) : (
+          <Text style={styles.copy}>{plans.isLoading ? "Carregando o plano" : "Plano"}</Text>
+        )}
+        <Card style={styles.actions}>
           <Text style={styles.copy}>
-            A fatura abre no navegador. PIX, boleto ou cartão ficam na página do Asaas. Nenhuma chave
-            de pagamento fica neste app.
+            A fatura abre no navegador. PIX, boleto ou cartão ficam na página do Asaas. Nenhuma chave de
+            pagamento fica neste app.
           </Text>
           <ErrorText text={error} />
-          <Button label="Abrir fatura" onPress={pay} loading={loading} disabled={!planId} />
+          <Button
+            label="Abrir fatura"
+            onPress={pay}
+            loading={loading}
+            disabled={!planId}
+            variant={material === "gold" ? "plate" : "primary"}
+          />
           <Button label="Voltar" onPress={() => router.back()} variant="ghost" />
         </Card>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { padding: space.lg },
-  title: { color: colors.navy, fontSize: 22, fontWeight: "700" },
-  price: { color: colors.ink, fontSize: 18, marginVertical: space.sm },
-  copy: { color: colors.muted, fontSize: 14, marginBottom: space.md },
+  scroll: { flex: 1, backgroundColor: colors.background },
+  body: { padding: space.lg, gap: space.md },
+  actions: { gap: space.md },
+  copy: { fontFamily: font.body, color: colors.muted, fontSize: 14, lineHeight: 21 },
 });

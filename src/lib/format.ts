@@ -25,3 +25,9 @@ const PAYMENT_STATUS: Record<string, string> = {
 export function paymentStatusLabel(status: string): string {
   return PAYMENT_STATUS[status] ?? status;
 }
+
+export function formatDateBr(iso: string): string {
+  const [year, month, day] = iso.slice(0, 10).split("-");
+  if (!year || !month || !day) return iso;
+  return `${day}/${month}/${year}`;
+}

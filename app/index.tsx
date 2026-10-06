@@ -1,15 +1,15 @@
 import { Redirect } from "expo-router";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useAuthStore } from "@/store/auth";
-import { colors } from "@/theme";
+import { colors, font } from "@/theme";
 
 export default function Index() {
   const session = useAuthStore((state) => state.session);
 
   if (session.status === "loading") {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
-        <Text style={{ color: colors.muted }}>Carregando...</Text>
+      <View style={styles.boot}>
+        <Text style={styles.mark}>NEXUS</Text>
       </View>
     );
   }
@@ -24,3 +24,8 @@ export default function Index() {
   }
   return <Redirect href="/equipe" />;
 }
+
+const styles = StyleSheet.create({
+  boot: { flex: 1, backgroundColor: colors.navy, alignItems: "center", justifyContent: "center" },
+  mark: { fontFamily: font.display, color: colors.white, fontSize: 56, lineHeight: 58 },
+});

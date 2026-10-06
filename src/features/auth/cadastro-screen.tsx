@@ -1,10 +1,11 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import { Button, Card, ErrorText, Field, Screen } from "@/components/ui";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text } from "react-native";
+import { AuthMast } from "@/components/auth-mast";
+import { Button, ErrorText, Field, Screen } from "@/components/ui";
 import { authClient } from "@/lib/auth-client";
 import { refreshSession } from "@/lib/session";
-import { colors, space } from "@/theme";
+import { colors, font, radius, shadow, space } from "@/theme";
 
 export function CadastroScreen() {
   const [name, setName] = useState("");
@@ -44,49 +45,52 @@ export function CadastroScreen() {
   }
 
   return (
-    <Screen>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.fill}
-      >
-        <View style={styles.body}>
-          <Text style={styles.brand}>Criar conta</Text>
-          <Text style={styles.lead}>Depois você escolhe o plano e paga a fatura.</Text>
-          <Card>
-            <View style={styles.form}>
-              <Field label="Nome" value={name} onChangeText={setName} autoCapitalize="words" />
-              <Field
-                label="E-mail"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoComplete="email"
-              />
-              <Field
-                label="Senha"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoComplete="new-password"
-              />
-              <ErrorText text={error} />
-              <Button label="Cadastrar" onPress={submit} loading={loading} />
-            </View>
-          </Card>
-          <Pressable onPress={() => router.back()}>
+    <Screen tone="navy">
+      <ScrollView contentContainerStyle={styles.grow} keyboardShouldPersistTaps="handled" bounces={false}>
+        <AuthMast />
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.sheet}>
+          <Text style={styles.title}>Criar conta</Text>
+          <Text style={styles.lead}>Depois você escolhe o plano e abre a fatura.</Text>
+          <Field label="Nome" value={name} onChangeText={setName} autoCapitalize="words" />
+          <Field
+            label="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoComplete="email"
+          />
+          <Field
+            label="Senha"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoComplete="new-password"
+          />
+          <ErrorText text={error} />
+          <Button label="Cadastrar" onPress={submit} loading={loading} />
+          <Pressable accessibilityRole="link" onPress={() => router.back()} style={styles.linkTarget}>
             <Text style={styles.link}>Já tenho conta</Text>
           </Pressable>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1 },
-  body: { flex: 1, justifyContent: "center", padding: space.xl, gap: space.lg },
-  brand: { color: colors.navy, fontSize: 32, fontWeight: "700" },
-  lead: { color: colors.muted, fontSize: 16, marginTop: -space.sm },
-  form: { gap: space.md },
-  link: { color: colors.maroon, textAlign: "center", fontWeight: "700" },
+  grow: { flexGrow: 1 },
+  sheet: {
+    flex: 1,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: radius.panel,
+    borderTopRightRadius: radius.panel,
+    padding: space.xl,
+    paddingBottom: 40,
+    gap: space.md,
+    ...shadow.card,
+  },
+  title: { fontFamily: font.title, fontSize: 28, color: colors.ink },
+  lead: { fontFamily: font.body, fontSize: 16, color: colors.muted, marginTop: -space.sm, lineHeight: 22 },
+  linkTarget: { minHeight: 44, alignItems: "center", justifyContent: "center" },
+  link: { fontFamily: font.bodyBold, color: colors.navy, fontSize: 15 },
 });

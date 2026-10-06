@@ -97,6 +97,14 @@ export type Routine = {
   trainings: Training[];
 };
 
+export type TrainingSession = {
+  id: string;
+  trainingId: string | null;
+  routineId: string | null;
+  date: string;
+  status: string;
+};
+
 export type BioEntry = {
   id: string;
   date: string;
@@ -143,6 +151,10 @@ export const api = {
     }),
   routines: (studentId: string) =>
     request<{ data: Routine[] }>(`/routines?studentId=${studentId}`),
+  sessions: (studentId: string) =>
+    request<{ data: TrainingSession[] }>(
+      `/sessions?studentId=${encodeURIComponent(studentId)}&limit=40`,
+    ),
   completeSession: (body: { studentId: string; trainingId: string; routineId?: string; date: string }) =>
     request<{ data: unknown }>("/sessions", {
       method: "POST",
