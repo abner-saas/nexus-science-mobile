@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import * as WebBrowser from "expo-web-browser";
 import { router, useLocalSearchParams } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, StyleSheet, Text, View } from "react-native";
 import { BrandHeader, Button, Card, ErrorText, Screen } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
 import { formatBrl } from "@/lib/format";
@@ -11,7 +11,9 @@ import { colors, space } from "@/theme";
 
 function checkoutMessage(error: unknown): string {
   if (!(error instanceof ApiError)) return "Não foi possível abrir o pagamento.";
-  if (error.status === 503) return "Pagamento indisponível no momento. Tente de novo mais tarde.";
+  if (error.status === 503) {
+    return error.message || "Pagamento indisponível no momento. Tente de novo mais tarde.";
+  }
   if (error.status === 404) return "Esse plano não está mais disponível.";
   if (error.status === 401) return "Sua sessão expirou. Entre de novo.";
   return error.message || "Não foi possível abrir o pagamento.";
@@ -30,7 +32,17 @@ export function CheckoutScreen() {
     setLoading(true);
     try {
       const { data } = await api.checkout(planId);
-      await WebBrowser.openBrowserAsync(data.checkoutUrl);
+      if (Platform.OS === "web") {
+        const open = (
+          globalThis as {
+            open?: (url: string, target?: string, features?: string) => object | null;
+          }
+        ).open;
+        const opened = open?.(data.checkoutUrl, "_blank", "noopener,noreferrer");
+        if (!opened) await Linking.openURL(data.checkoutUrl);
+      } else {
+        await WebBrowser.openBrowserAsync(data.checkoutUrl);
+      }
       await refreshSession();
       router.replace("/");
     } catch (err) {

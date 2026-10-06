@@ -1,7 +1,9 @@
+import { Platform } from "react-native";
 import { authClient } from "@/lib/auth-client";
 import type { MemberUser } from "@/store/auth";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3333";
+const isWeb = Platform.OS === "web";
 
 export class ApiError extends Error {
   status: number;
@@ -16,8 +18,12 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
-  const cookie = await authClient.getCookie();
-  if (cookie) headers.set("Cookie", cookie);
+  // No browser o header Cookie é proibido e a sessão vai no cookie da API
+  // (credentials: include). No nativo o plugin guarda o cookie no SecureStore.
+  if (!isWeb) {
+    const cookie = await authClient.getCookie();
+    if (cookie) headers.set("Cookie", cookie);
+  }
   if (init?.body !== undefined && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
@@ -25,7 +31,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
     headers,
-    credentials: "omit",
+    credentials: isWeb ? "include" : "omit",
   });
 
   if (res.status === 204) return undefined as T;
