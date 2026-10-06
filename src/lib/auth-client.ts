@@ -1,0 +1,16 @@
+import { expoClient } from "@better-auth/expo/client";
+import { createAuthClient } from "better-auth/react";
+import * as SecureStore from "expo-secure-store";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3333";
+
+export const authClient = createAuthClient({
+  baseURL: API_URL,
+  plugins: [
+    expoClient({
+      scheme: "nexusscience",
+      storagePrefix: "nexusscience",
+      storage: SecureStore,
+    }),
+  ],
+});
