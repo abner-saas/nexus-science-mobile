@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ConfirmButton } from "@/components/confirm-button";
 import { MetricBars, type Meter } from "@/components/metric-bars";
 import { Button, Card } from "@/components/ui";
@@ -64,6 +64,8 @@ const FIELDS = [
 type BioKey = (typeof FIELDS)[number]["key"];
 type BioForm = Record<BioKey, number>;
 
+const HYDRATION_LITERS = [1, 1.5, 2, 2.5, 3, 3.5] as const;
+
 const initial: BioForm = {
   energy: 7,
   mood: 7,
@@ -75,6 +77,7 @@ const initial: BioForm = {
 export function BioScreen({ studentId }: { studentId: string }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<BioForm>(initial);
+  const [hydration, setHydration] = useState<number>(2.5);
   const [pulse, setPulse] = useState(0);
   const history = useQuery({
     queryKey: ["bio", studentId],
@@ -90,6 +93,7 @@ export function BioScreen({ studentId }: { studentId: string }) {
         stress: form.stress,
         sleep: form.sleep,
         musclePain: form.musclePain,
+        hydration: hydration.toFixed(1),
       }),
     onSuccess: () => {
       setPulse((current) => current + 1);
@@ -126,6 +130,24 @@ export function BioScreen({ studentId }: { studentId: string }) {
             setForm((current) => ({ ...current, [key]: value }));
           }}
         />
+        <Text style={styles.hint}>Quanta água você bebeu hoje?</Text>
+        <View style={styles.liters}>
+          {HYDRATION_LITERS.map((liters) => {
+            const selected = hydration === liters;
+            return (
+              <Pressable
+                key={liters}
+                onPress={() => {
+                  save.reset();
+                  setHydration(liters);
+                }}
+                style={[styles.liter, selected ? styles.literOn : null]}
+              >
+                <Text style={[styles.literText, selected ? styles.literTextOn : null]}>{liters} L</Text>
+              </Pressable>
+            );
+          })}
+        </View>
         <ConfirmButton
           label="Registrar biofeedback"
           confirmedLabel="Biofeedback registrado"
@@ -177,6 +199,7 @@ export function BioScreen({ studentId }: { studentId: string }) {
                 );
               })}
             </View>
+            {row.hydration ? <Text style={styles.hint}>Hidratação {row.hydration} L</Text> : null}
           </View>
         ))}
       </Card>
@@ -233,4 +256,15 @@ const styles = StyleSheet.create({
   },
   metricLabel: { fontFamily: font.body, color: colors.muted, fontSize: 9 },
   metricValue: { fontFamily: font.bodyBold, fontSize: 12 },
+  liters: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
+  liter: {
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.line,
+    paddingHorizontal: space.md,
+    paddingVertical: 8,
+  },
+  literOn: { backgroundColor: colors.navy, borderColor: colors.navy },
+  literText: { fontFamily: font.bodyMedium, color: colors.ink, fontSize: 13 },
+  literTextOn: { color: colors.white },
 });

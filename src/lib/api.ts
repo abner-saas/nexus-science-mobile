@@ -113,6 +113,7 @@ export type BioEntry = {
   stress: number | null;
   sleep: number | null;
   musclePain: number | null;
+  hydration?: string | null;
 };
 
 export type Payment = {
@@ -171,6 +172,7 @@ export const api = {
       stress: number;
       sleep: number;
       musclePain: number;
+      hydration?: string;
     }) => request<{ data: BioEntry }>("/biofeedback", { method: "POST", body: JSON.stringify(body) }),
   },
   payments: (studentId: string) => request<{ data: Payment[] }>(`/payments?studentId=${studentId}`),

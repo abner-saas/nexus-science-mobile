@@ -1,8 +1,9 @@
+import { BlockedConsult, useStudentAccess } from "@/features/acesso/blocked-screen";
 import { AvaliacaoScreen } from "@/features/avaliacao/avaliacao-screen";
-import { useAuthStore } from "@/store/auth";
 
 export default function AvaliacaoRoute() {
-  const session = useAuthStore((state) => state.session);
-  if (session.status !== "member" || !session.user.studentId) return null;
-  return <AvaliacaoScreen studentId={session.user.studentId} />;
+  const access = useStudentAccess();
+  if (access.kind === "missing") return null;
+  if (access.kind === "blocked") return <BlockedConsult billing={access.billing} />;
+  return <AvaliacaoScreen studentId={access.studentId} />;
 }

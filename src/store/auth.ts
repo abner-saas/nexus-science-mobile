@@ -1,11 +1,20 @@
 import { create } from "zustand";
 
+export type BillingView = {
+  status: string;
+  appAccess: boolean;
+  blocked: boolean;
+  daysOverdue: number;
+  reason: "overdue" | "paused" | "cancelled" | "pending" | null;
+};
+
 export type MemberUser = {
   id: string;
   name: string;
   email: string;
   role: "ADMIN" | "TRAINER" | "FINANCE" | "RECEPTION" | "STUDENT";
   studentId?: string | null;
+  billing?: BillingView;
 };
 
 export type SessionState =

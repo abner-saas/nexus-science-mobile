@@ -1,8 +1,9 @@
+import { BlockedConsult, useStudentAccess } from "@/features/acesso/blocked-screen";
 import { TreinoScreen } from "@/features/treino/treino-screen";
-import { useAuthStore } from "@/store/auth";
 
 export default function TreinoRoute() {
-  const session = useAuthStore((state) => state.session);
-  if (session.status !== "member" || !session.user.studentId) return null;
-  return <TreinoScreen studentId={session.user.studentId} />;
+  const access = useStudentAccess();
+  if (access.kind === "missing") return null;
+  if (access.kind === "blocked") return <BlockedConsult billing={access.billing} />;
+  return <TreinoScreen studentId={access.studentId} />;
 }

@@ -8,6 +8,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+import { AppState } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { registerPushToken } from "@/features/push/register-push";
 import { queryClient } from "@/lib/queryClient";
@@ -31,6 +32,13 @@ export default function RootLayout() {
 
   useEffect(() => {
     refreshSession().finally(() => setSessionReady(true));
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        void refreshSession();
+        void queryClient.invalidateQueries();
+      }
+    });
+    return () => subscription.remove();
   }, []);
 
   useEffect(() => {

@@ -1,8 +1,9 @@
+import { BlockedConsult, useStudentAccess } from "@/features/acesso/blocked-screen";
 import { BioScreen } from "@/features/biofeedback/bio-screen";
-import { useAuthStore } from "@/store/auth";
 
 export default function BioRoute() {
-  const session = useAuthStore((state) => state.session);
-  if (session.status !== "member" || !session.user.studentId) return null;
-  return <BioScreen studentId={session.user.studentId} />;
+  const access = useStudentAccess();
+  if (access.kind === "missing") return null;
+  if (access.kind === "blocked") return <BlockedConsult billing={access.billing} />;
+  return <BioScreen studentId={access.studentId} />;
 }
